@@ -1,20 +1,19 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
-import { redisCacheSet, redisChaceGet } from 'src/redishelper';
 import { ConfigService } from '@nestjs/config';
 import { Room } from './entity/room.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HandRaiseDto } from './dto/HandRaise.dto';
-import { identity } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 import { canPublishPremissionDto } from './dto/Canpublish.dto';
 
 @Injectable()
 export class RoomService {
   constructor(
     private configService: ConfigService,
-    @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
+    private httpService: HttpService,
   ) {}
 
   async create(input: CreateRoomDto) {
@@ -22,27 +21,9 @@ export class RoomService {
     const secretKey = await this.configService.get('secretkey');
     const metadata = JSON.stringify({ raised: [] });
     const ttl = await this.configService.get('ttl');
-    // const expireMinute = ttl.replace('m', '');
-    // const expiryTime = 1000 * 60 * +expireMinute;
 
     if (!input.user || !input.room)
       throw new BadRequestException('Please pass required data');
-    // const roomdetails = await this.roomRepository.find({
-    //   where: { room: input.room },
-    // });
-    // const checking = roomdetails.map((eachData) => {
-    //   if (eachData.user === input.user) {
-    //     if (eachData.createdAt.getTime() + expiryTime < Date.now()) {
-    //       console.log(
-    //         'This time user must be created: but wait.. its on development phase , Developers working on it ',
-    //       );
-    //     }
-    //     throw new BadRequestException('This user Already Exist on room');
-    //   }
-    //   if (eachData.user === 'supervisor' && input.user === 'supervisor') {
-    //     throw new BadRequestException('Only One supervisor can exist on room');
-    //   }
-    // });
 
     const participantName = input.user;
     const at = new AccessToken(apiKey, secretKey, {
@@ -53,6 +34,7 @@ export class RoomService {
     at.addGrant({
       roomJoin: true,
       canPublish: input.user == 'supervisor',
+      canPublishData: true,
       canSubscribe: true,
       room: input.room,
     });
@@ -67,14 +49,16 @@ export class RoomService {
 
     const { roomId, userId } = input;
     const metadata = JSON.stringify({ raised: [`${userId}`] });
+    console.log(metadata);
 
     const at = new RoomServiceClient(host, apiKey, secretKey);
     at.updateRoomMetadata(roomId, metadata);
-    return { message: `${userId} has Raise the Hand` };
+    return { message: `${userId} has Raise the Hand`, raised: true };
   }
 
   async canPublishPremission(input: canPublishPremissionDto) {
-    const { roomId, identity, userId } = input;
+    const { roomId, identity } = input;
+
     const apiKey = await this.configService.get('apikey');
     const secretKey = await this.configService.get('secretkey');
     const host = await this.configService.get('host');
@@ -86,8 +70,7 @@ export class RoomService {
       hidden: false,
       recorder: false,
     });
-    console.log(at);
 
-    return { message: `${userId} got premission to canPublish` };
+    return { message: `${identity} got premission to canPublish` };
   }
 }
