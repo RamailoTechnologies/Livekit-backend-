@@ -22,30 +22,29 @@ export class RoomService {
     const secretKey = await this.configService.get('secretkey');
     const metadata = JSON.stringify({ raised: [] });
     const ttl = await this.configService.get('ttl');
-    const expireMinute = ttl.replace('m', '');
-    const expiryTime = 1000 * 60 * +expireMinute;
+    // const expireMinute = ttl.replace('m', '');
+    // const expiryTime = 1000 * 60 * +expireMinute;
 
     if (!input.user || !input.room)
       throw new BadRequestException('Please pass required data');
-    const roomdetails = await this.roomRepository.find({
-      where: { room: input.room },
-    });
-    const checking = roomdetails.map((eachData) => {
-      if (eachData.user === input.user) {
-        if (eachData.createdAt.getTime() + expiryTime < Date.now()) {
-          console.log(
-            'This time user must be created: but wait.. its on development phase , Developers working on it ',
-          );
-        }
-        throw new BadRequestException('This user Already Exist on room');
-      }
-      if (eachData.user === 'supervisor' && input.user === 'supervisor') {
-        throw new BadRequestException('Only One supervisor can exist on room');
-      }
-    });
+    // const roomdetails = await this.roomRepository.find({
+    //   where: { room: input.room },
+    // });
+    // const checking = roomdetails.map((eachData) => {
+    //   if (eachData.user === input.user) {
+    //     if (eachData.createdAt.getTime() + expiryTime < Date.now()) {
+    //       console.log(
+    //         'This time user must be created: but wait.. its on development phase , Developers working on it ',
+    //       );
+    //     }
+    //     throw new BadRequestException('This user Already Exist on room');
+    //   }
+    //   if (eachData.user === 'supervisor' && input.user === 'supervisor') {
+    //     throw new BadRequestException('Only One supervisor can exist on room');
+    //   }
+    // });
 
     const participantName = input.user;
-
     const at = new AccessToken(apiKey, secretKey, {
       identity: participantName,
       ttl,
@@ -53,12 +52,12 @@ export class RoomService {
     });
     at.addGrant({
       roomJoin: true,
-      canPublish: input.user == 'superuser',
+      canPublish: input.user == 'supervisor',
       canSubscribe: true,
+      room: input.room,
     });
     const token = at.toJwt();
-    const saveUser = await this.roomRepository.save(input);
-    return { ...saveUser, token };
+    return { 'access token': token };
   }
 
   async UpdateHandRaise(input: HandRaiseDto) {
