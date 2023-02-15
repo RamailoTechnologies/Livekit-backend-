@@ -57,14 +57,14 @@ export class RoomService {
   }
 
   async canPublishPremission(input: canPublishPremissionDto) {
-    const { roomId, identity } = input;
+    const { roomId, identity, publish } = input;
 
     const apiKey = await this.configService.get('apikey');
     const secretKey = await this.configService.get('secretkey');
     const host = await this.configService.get('host');
     const at = new RoomServiceClient(host, apiKey, secretKey);
     at.updateParticipant(roomId, identity, undefined, {
-      canPublish: true,
+      canPublish: publish,
       canSubscribe: true,
       canPublishData: true,
       hidden: false,

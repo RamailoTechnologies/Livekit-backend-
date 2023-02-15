@@ -5,6 +5,6 @@ export class canPublishPremissionDto {
   roomId: string;
   @ApiProperty({ type: 'string', example: 'token' })
   identity: string;
-  @ApiProperty({ type: 'string', example: 'Sewak' })
-  supervisorToken: string;
+  @ApiProperty({ type: 'boolean', example: false })
+  publish: boolean;
 }
