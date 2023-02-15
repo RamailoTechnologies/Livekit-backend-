@@ -3,7 +3,12 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: '*',
+      allowedHeaders: '*',
+    },
+  });
   const config = new DocumentBuilder()
     .setTitle('Live Video And Audio Call')
     .setDescription('meet / Skype Clone system')
