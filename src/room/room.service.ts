@@ -43,7 +43,6 @@ export class RoomService {
       room: input.room,
     });
     const token = at.toJwt();
-    this.verify(token, apiKey, secretKey);
     return { 'access token': token };
   }
 
