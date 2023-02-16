@@ -30,10 +30,13 @@ export class RoomService {
     if (!input.user || !input.room)
       throw new BadRequestException('Please pass required data');
 
+    const metadata = JSON.stringify({ raides: [] });
+
     const participantName = input.user;
     const at = new AccessToken(apiKey, secretKey, {
       identity: participantName,
       ttl,
+      metadata,
     });
     at.addGrant({
       roomJoin: true,
