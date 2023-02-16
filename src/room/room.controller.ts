@@ -27,18 +27,9 @@ export class RoomController {
     return this.roomService.create(createRoomDto);
   }
 
-  @Post('/update-handraise')
+  @Post('/update-permission')
   @ApiBody({
-    description: 'Return Token',
-    type: HandRaiseDto,
-  })
-  updateHandRaise(@Body() handRaiseDto: HandRaiseDto) {
-    return this.roomService.UpdateHandRaise(handRaiseDto);
-  }
-
-  @Post('/update-premission')
-  @ApiBody({
-    description: 'Return Token',
+    description: 'Update user Can publish permission',
     type: canPublishPremissionDto,
   })
   updatePremission(@Body() updatePremissionDto: canPublishPremissionDto) {
