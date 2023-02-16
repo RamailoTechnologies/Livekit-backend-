@@ -80,10 +80,14 @@ export class RoomService {
   }
 
   verify(token: string, apiKey, secretkey) {
-    const decoded = jwt.verify(token, secretkey, { issuer: apiKey });
-    if (!decoded) {
-      throw Error('invalid token');
+    try {
+      const decoded = jwt.verify(token, secretkey, { issuer: apiKey });
+      if (!decoded) {
+        throw Error('invalid token');
+      }
+      return decoded;
+    } catch {
+      throw new BadRequestException('Token Invalid');
     }
-    return decoded;
   }
 }
