@@ -76,7 +76,12 @@ export class RoomService {
       recorder: false,
     });
 
-    return { message: `${identity} got premission to canPublish` };
+    // return { message: `${identity} got premission to canPublish` };
+    return {
+      message: ` Permission ${
+        publish ? 'granted' : 'revoked'
+      } for ${identity} `,
+    };
   }
 
   verify(token: string, apiKey, secretkey) {
