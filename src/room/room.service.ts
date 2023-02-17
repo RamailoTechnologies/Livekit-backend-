@@ -69,7 +69,7 @@ export class RoomService {
     }
     const at = new RoomServiceClient(host, apiKey, secretKey);
     at.updateParticipant(roomId, identity, undefined, {
-      canPublish: !publish,
+      canPublish: publish,
       canSubscribe: true,
       canPublishData: true,
       hidden: false,
